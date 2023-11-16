@@ -118,6 +118,41 @@ public class Nave4 extends EntidadMovible{
 
     @Override
     public void update() {
+        // Si la nave está herida, se reduce el tiempo de herido
+        if (herido) {
+            tiempoHerido--;
+            if (tiempoHerido <= 0) {
+                herido = false;
+            }
+        } else {
+            // Movimiento básico de la nave
+            float x = spr.getX();
+            float y = spr.getY();
+            float xVel = getXSpeed();
+            float yVel = getYSpeed();
+
+            // Control de la nave con el teclado
+            if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) xVel--;
+            if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) xVel++;
+            if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) yVel--;
+            if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) yVel++;
+
+            // Mantener la nave dentro de los bordes de la pantalla
+            if (x + xVel < 0 || x + xVel + spr.getWidth() > Gdx.graphics.getWidth())
+                xVel *= -1;
+            if (y + yVel < 0 || y + yVel + spr.getHeight() > Gdx.graphics.getHeight())
+                yVel *= -1;
+
+            // Actualizar la posición y velocidad de la nave
+            spr.setPosition(x + xVel, y + yVel);
+            setXSpeed(xVel);
+            setYSpeed(yVel);
+        }
+
+        // Comprobar si la nave está destruida
+        if (vidas <= 0) {
+            destruida = true;
+        }
     }
 
     public boolean estaDestruido() {
