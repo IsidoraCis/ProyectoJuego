@@ -7,16 +7,15 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 
-public class PantallaGameOver implements Screen {
-
-	private SpaceNavigation game;
-	private OrthographicCamera camera;
+public class PantallaGameOver extends PantallaBase {
 
 	public PantallaGameOver(SpaceNavigation game) {
-		this.game = game;
-        
-		camera = new OrthographicCamera();
-		camera.setToOrtho(false, 1200, 800);
+		super(game);
+	}
+
+	@Override
+	protected void initialize() {
+		// Puedes realizar inicializaciones específicas aquí si es necesario.
 	}
 
 	@Override
@@ -36,45 +35,35 @@ public class PantallaGameOver implements Screen {
 			Screen ss = new PantallaJuego(game,1,3,0,1,1,10);
 			ss.resize(1200, 800);
 			game.setScreen(ss);
-			dispose();
+			//dispose();
 		}
 	}
- 
-	
+
 	@Override
-	public void show() {
-		// TODO Auto-generated method stub
-		
+	protected void draw() {
+		game.getBatch().begin();
+		game.getFont().draw(game.getBatch(), "Game Over!!!", 120, 400, 400, 1, true);
+		game.getFont().draw(game.getBatch(), "Pincha en cualquier lado para reiniciar...", 100, 300);
+		game.getBatch().end();
 	}
 
 	@Override
-	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-		
+	protected void update(float delta) {
+		if (Gdx.input.isTouched() || Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY)) {
+			iniciarJuego();
+		}
 	}
 
-	@Override
-	public void pause() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void resume() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void hide() {
-		// TODO Auto-generated method stub
-		
+	private void iniciarJuego() {
+		Screen ss = new PantallaJuego(game, 1, 3, 0, 1, 1, 10);
+		ss.resize(1200, 800);
+		game.setScreen(ss);
+		//dispose();
 	}
 
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
-		
+		game.getFont().dispose(); // Libera la fuente utilizada
 	}
    
 }

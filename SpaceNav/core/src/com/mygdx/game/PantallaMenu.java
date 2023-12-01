@@ -1,22 +1,28 @@
 package com.mygdx.game;
 
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.graphics.Color;
 
-
-public class PantallaMenu implements Screen {
-
-	private SpaceNavigation game;
-	private OrthographicCamera camera;
+public class PantallaMenu extends PantallaBase {
+	private Rectangle botonJugar;
+	private Rectangle botonConfiguraciones;
+	private Rectangle botonSalir;
 
 	public PantallaMenu(SpaceNavigation game) {
-		this.game = game;
-        
-		camera = new OrthographicCamera();
-		camera.setToOrtho(false, 1200, 800);
+		super(game);
+		botonJugar = new Rectangle(500, 350, 200, 60); // Ejemplo de coordenadas y tamaño
+		botonConfiguraciones = new Rectangle(500, 250, 200, 60);
+		botonSalir = new Rectangle(500, 150, 200, 60);
+	}
+
+	@Override
+	protected void initialize() {
+		// Puedes realizar inicializaciones específicas aquí si es necesario.
 	}
 
 	@Override
@@ -27,54 +33,88 @@ public class PantallaMenu implements Screen {
 		game.getBatch().setProjectionMatrix(camera.combined);
 
 		game.getBatch().begin();
+		game.getFont().setColor(Color.WHITE);
 		game.getFont().draw(game.getBatch(), "Bienvenido a Space Navigation !", 140, 400);
-		game.getFont().draw(game.getBatch(), "Pincha en cualquier lado o presiona cualquier tecla para comenzar ...", 100, 300);
-	
+
+		// Dibujar botones
+		game.getFont().draw(game.getBatch(), "Jugar", botonJugar.x, botonJugar.y);
+		game.getFont().draw(game.getBatch(), "Configuraciones", botonConfiguraciones.x, botonConfiguraciones.y);
+		game.getFont().draw(game.getBatch(), "Salir", botonSalir.x, botonSalir.y);
+
 		game.getBatch().end();
 
-		if (Gdx.input.isTouched() || Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY)) {
-			Screen ss = new PantallaJuego(game,1,3,0,1,1,10);
-			ss.resize(1200, 800);
-			game.setScreen(ss);
-			dispose();
+		// Gestionar entradas del usuario
+		if (Gdx.input.justTouched()) {
+			Vector3 touchPos = new Vector3();
+			touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+			camera.unproject(touchPos);
+
+			// Comprobar si el usuario ha tocado alguno de los botones
+			if (botonJugar.contains(touchPos.x, touchPos.y)) {
+				// Iniciar juego
+				Screen ss = new PantallaJuego(game,1,3,0,1,1,10);
+				ss.resize(1200, 800);
+				game.setScreen(ss);
+
+			} else if (botonConfiguraciones.contains(touchPos.x, touchPos.y)) {
+				game.setScreen(new PantallaConfiguraciones(game));
+				//dispose();
+			} else if (botonSalir.contains(touchPos.x, touchPos.y)) {
+				Gdx.app.exit();
+			}
 		}
 	}
-	
-	
+
 	@Override
-	public void show() {
-		// TODO Auto-generated method stub
-		
+	protected void draw() {
+		game.getBatch().begin();
+		game.getFont().draw(game.getBatch(), "Bienvenido a Space Navigation!", 140, 400);
+		game.getFont().draw(game.getBatch(), "Jugar", botonJugar.x, botonJugar.y);
+		game.getFont().draw(game.getBatch(), "Configuraciones", botonConfiguraciones.x, botonConfiguraciones.y);
+		game.getFont().draw(game.getBatch(), "Salir", botonSalir.x, botonSalir.y);
+		game.getBatch().end();
 	}
 
 	@Override
-	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-		
+	protected void update(float delta) {
+		// Gestionar entradas del usuario
+		if (Gdx.input.justTouched()) {
+			Vector3 touchPos = new Vector3();
+			touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+			camera.unproject(touchPos);
+
+			// Comprobar si el usuario ha tocado alguno de los botones
+			if (botonJugar.contains(touchPos.x, touchPos.y)) {
+				iniciarJuego();
+			} else if (botonConfiguraciones.contains(touchPos.x, touchPos.y)) {
+				abrirConfiguraciones();
+			} else if (botonSalir.contains(touchPos.x, touchPos.y)) {
+				salirDelJuego();
+			}
+		}
 	}
 
-	@Override
-	public void pause() {
-		// TODO Auto-generated method stub
-		
+	protected void iniciarJuego() {
+		// Lógica para iniciar el juego
+		Screen ss = new PantallaJuego(game, 1, 3, 0, 1, 1, 10);
+		ss.resize(1200, 800);
+		game.setScreen(ss);
 	}
 
-	@Override
-	public void resume() {
-		// TODO Auto-generated method stub
-		
+	protected void abrirConfiguraciones() {
+		// Lógica para abrir configuraciones
+		game.setScreen(new PantallaConfiguraciones(game));
+		//dispose();
 	}
 
-	@Override
-	public void hide() {
-		// TODO Auto-generated method stub
-		
+	protected void salirDelJuego() {
+		// Lógica para salir del juego
+		Gdx.app.exit();
 	}
 
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
-		
+		game.getFont().dispose();
 	}
    
 }
