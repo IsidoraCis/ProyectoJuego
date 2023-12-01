@@ -24,6 +24,7 @@ public class Ball2 extends EntidadMovible implements Dibujable {
 
         spr.setPosition(x, y);
     }
+    
     public void update() {
         x += getXSpeed();
         y += getYSpeed();
