@@ -21,6 +21,8 @@ public class Nave4 extends EntidadMovible{
     private int tiempoHeridoMax=50;
     private int tiempoHerido;
 
+    private EstrategiaDisparo estrategiaDisparo;
+
     public Nave4(int x, int y, Texture tx, Sound soundChoque, Texture txBala, Sound soundBala) {
         super(x, y, 0, 0);
         sonidoHerido = soundChoque;
@@ -30,7 +32,7 @@ public class Nave4 extends EntidadMovible{
         spr.setPosition(x, y);
         //spr.setOriginCenter();
         spr.setBounds(x, y, 45, 45);
-
+        this.estrategiaDisparo = new DisparoSimple();
     }
     public void draw(SpriteBatch batch, PantallaJuego juego){
         float x =  spr.getX();
@@ -78,11 +80,13 @@ public class Nave4 extends EntidadMovible{
         }
         // disparo
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            Bullet  bala = new Bullet(spr.getX()+spr.getWidth()/2-5,spr.getY()+ spr.getHeight()-5,0,3,txBala);
-            juego.agregarBala(bala);
-            soundBala.play();
+            disparar(juego, batch);
         }
 
+    }
+
+    public void disparar(PantallaJuego juego, SpriteBatch batch){
+        estrategiaDisparo.disparar(juego, batch, spr.getX(), spr.getY(), spr.getWidth(), spr.getHeight(),txBala, soundBala);
     }
 
     public boolean checkCollision(Ball2 b) {
