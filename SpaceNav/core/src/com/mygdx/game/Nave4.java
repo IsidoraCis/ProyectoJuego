@@ -20,56 +20,99 @@ public class Nave4 extends EntidadMovible{
     private boolean herido = false;
     private int tiempoHeridoMax=50;
     private int tiempoHerido;
-
     private EstrategiaDisparo estrategiaDisparo;
 
-    public Nave4(int x, int y, Texture tx, Sound soundChoque, Texture txBala, Sound soundBala) {
-        super(x, y, 0, 0);
-        sonidoHerido = soundChoque;
-        this.soundBala = soundBala;
-        this.txBala = txBala;
-        spr = new Sprite(tx);
-        spr.setPosition(x, y);
-        //spr.setOriginCenter();
-        spr.setBounds(x, y, 45, 45);
-        this.estrategiaDisparo = new DisparoSimple();
+    private static final float VELOCIDAD = 300;
+
+    private Nave4(Builder builder) {
+        super(builder.x, builder.y, 0, 0);
+        this.vidas = builder.vidas;
+        this.sonidoHerido = builder.sonidoHerido;
+        this.soundBala = builder.soundBala;
+        this.txBala = builder.texturaBala;
+        this.spr = new Sprite(builder.texturaNave);
+        this.spr.setPosition(builder.x, builder.y);
+        this.spr.setBounds(builder.x, builder.y, 45, 45);
+        this.estrategiaDisparo = new DisparoSimple(); // Asumiendo que DisparoSimple es una clase válida
     }
-    public void draw(SpriteBatch batch, PantallaJuego juego){
-        float x =  spr.getX();
-        float y =  spr.getY();
+
+    public static class Builder {
+        private int x, y;
+        private Texture texturaNave;
+        private Sound sonidoHerido;
+        private Sound soundBala; // Única declaración de soundBala
+        private Texture texturaBala;
+        private int vidas = 3; // Valor predeterminado
+
+        public Builder setPosicion(int x, int y) {
+            this.x = x;
+            this.y = y;
+            return this;
+        }
+
+        public Builder setTexturaNave(Texture textura) {
+            this.texturaNave = textura;
+            return this;
+        }
+
+        public Builder setSonidoHerido(Sound sonido) {
+            this.sonidoHerido = sonido;
+            return this;
+        }
+
+        public Builder setSoundBala(Sound sonido) {
+            this.soundBala = sonido;
+            return this;
+        }
+
+        public Builder setTexturaBala(Texture textura) {
+            this.texturaBala = textura;
+            return this;
+        }
+
+        public Builder setVidas(int vidas) {
+            this.vidas = vidas;
+            return this;
+        }
+
+        public Nave4 build() {
+            return new Nave4(this);
+        }
+    }
+
+    public void draw(SpriteBatch batch, PantallaJuego juego, float deltaTime) {
+        float x = spr.getX();
+        float y = spr.getY();
         float xVel = getXSpeed();
         float yVel = getYSpeed();
+
         if (!herido) {
-            // que se mueva con teclado
-            if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) xVel--;
-            if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) xVel++;
-            if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) yVel--;
-            if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) yVel++;
+            // Ajusta la velocidad basada en la entrada del teclado
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+                xVel = -VELOCIDAD;
+            } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+                xVel = VELOCIDAD;
+            } else {
+                xVel = 0; // Detiene la nave si no se presionan las teclas izquierda o derecha
+            }
 
-	     /*   if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) spr.setRotation(++rotacion);
-	        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) spr.setRotation(--rotacion);
+            if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+                yVel = VELOCIDAD;
+            } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+                yVel = -VELOCIDAD;
+            } else {
+                yVel = 0; // Detiene la nave si no se presionan las teclas arriba o abajo
+            }
 
-	        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-	        	xVel -=Math.sin(Math.toRadians(rotacion));
-	        	yVel +=Math.cos(Math.toRadians(rotacion));
-	        	System.out.println(rotacion+" - "+Math.sin(Math.toRadians(rotacion))+" - "+Math.cos(Math.toRadians(rotacion))) ;
-	        }
-	        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)){
-	        	xVel +=Math.sin(Math.toRadians(rotacion));
-	        	yVel -=Math.cos(Math.toRadians(rotacion));
+            // Actualiza la posición de la nave
+            x += xVel * deltaTime;
+            y += yVel * deltaTime;
 
-	        }*/
+            // Restringe la nave a los límites de la pantalla
+            x = Math.max(0, Math.min(x, Gdx.graphics.getWidth() - spr.getWidth()));
+            y = Math.max(0, Math.min(y, Gdx.graphics.getHeight() - spr.getHeight()));
 
-            // que se mantenga dentro de los bordes de la ventana
-            if (x+xVel < 0 || x+xVel+spr.getWidth() > Gdx.graphics.getWidth())
-                xVel*=-1;
-            if (y+yVel < 0 || y+yVel+spr.getHeight() > Gdx.graphics.getHeight())
-                yVel*=-1;
-
-            spr.setPosition(x+xVel, y+yVel);
-            setYSpeed(yVel);
-            setXSpeed(xVel);
-
+            spr.setPosition(x, y);
             spr.draw(batch);
         } else {
             spr.setX(spr.getX()+MathUtils.random(-2,2));
@@ -82,7 +125,6 @@ public class Nave4 extends EntidadMovible{
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             disparar(juego, batch);
         }
-
     }
 
     public void disparar(PantallaJuego juego, SpriteBatch batch){

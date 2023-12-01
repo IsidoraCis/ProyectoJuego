@@ -24,8 +24,6 @@ public class PantallaJuego extends PantallaBase {
 
 	private ArrayList<Bullet> balas = new ArrayList<>();
 
-	private ArrayList<PowerUp> powerUps = new ArrayList<>();
-
 	private Sound explosionSound;
 	private Music gameMusic;
 	private boolean musicaOn = false;
